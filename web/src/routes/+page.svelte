@@ -76,6 +76,17 @@
 		setTimeout(() => (typstCopied = false), 1800);
 	}
 
+	function saveTypst() {
+		const safeName = data.name.replace(/\s+/g, '-').toLowerCase() || 'business-card';
+		const blob = new Blob([generateTypstCode(data)], { type: 'text/plain' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${safeName}-card.typ`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
 	const layouts: { value: CardLayout; label: string; desc: string }[] = [
 		{ value: 'bar', label: 'Accent Bar', desc: 'Vertical color bar on the left' },
 		{ value: 'classic', label: 'Classic', desc: 'Left-aligned with rule divider' },
@@ -255,6 +266,12 @@
 							<span class="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
 						{/if}
 						Download PDF
+					</button>
+					<button
+						onclick={saveTypst}
+						class="border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
+					>
+						Save as Typst
 					</button>
 					{#if rightTab === 'typst'}
 						<button
