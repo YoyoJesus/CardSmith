@@ -1,0 +1,5 @@
+node_modules
+build
+.svelte-kit
+static/typst_ts_web_compiler_bg.wasm
+static/typst_ts_renderer_bg.wasm
