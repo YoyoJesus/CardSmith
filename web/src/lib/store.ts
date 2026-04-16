@@ -7,7 +7,7 @@ function createStore() {
 	function loadFromStorage(): BusinessCardData {
 		if (typeof window === 'undefined') return { ...defaultData };
 		try {
-			const saved = localStorage.getItem('businessCardData');
+			const saved = sessionStorage.getItem('businessCardData');
 			if (saved) return { ...defaultData, ...JSON.parse(saved) };
 		} catch {}
 		return { ...defaultData };
@@ -17,7 +17,7 @@ function createStore() {
 		subscribe,
 		set: (data: BusinessCardData) => {
 			if (typeof window !== 'undefined') {
-				localStorage.setItem('businessCardData', JSON.stringify(data));
+				sessionStorage.setItem('businessCardData', JSON.stringify(data));
 			}
 			set(data);
 		},
@@ -25,14 +25,14 @@ function createStore() {
 			update((data) => {
 				const next = fn(data);
 				if (typeof window !== 'undefined') {
-					localStorage.setItem('businessCardData', JSON.stringify(next));
+					sessionStorage.setItem('businessCardData', JSON.stringify(next));
 				}
 				return next;
 			});
 		},
 		reset: () => {
 			if (typeof window !== 'undefined') {
-				localStorage.removeItem('businessCardData');
+				sessionStorage.removeItem('businessCardData');
 			}
 			set({ ...defaultData });
 		}

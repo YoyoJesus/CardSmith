@@ -20,13 +20,13 @@ export interface BusinessCardData {
 }
 
 export const defaultData: BusinessCardData = {
-	name: 'Jane Doe',
-	title: 'Software Engineer',
-	company: 'Acme Corp',
-	email: 'jane@example.com',
-	phone: '+1 555 123 4567',
+	name: '',
+	title: '',
+	company: '',
+	email: '',
+	phone: '',
 	website: '',
-	location: 'San Francisco, CA',
+	location: '',
 	linkedin: '',
 	github: '',
 	twitter: '',
