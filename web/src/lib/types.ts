@@ -69,10 +69,16 @@ export function sanitizeStoredCardData(value: unknown): BusinessCardData {
     }
   }
 
-  if (["bar", "classic", "centered", "header"].includes(String(saved.layout))) {
+  if (
+    typeof saved.layout === "string" &&
+    ["bar", "classic", "centered", "header"].includes(saved.layout)
+  ) {
     sanitized.layout = saved.layout as CardLayout;
   }
-  if (["us", "eu", "square"].includes(String(saved.size))) {
+  if (
+    typeof saved.size === "string" &&
+    ["us", "eu", "square"].includes(saved.size)
+  ) {
     sanitized.size = saved.size as CardSize;
   }
 

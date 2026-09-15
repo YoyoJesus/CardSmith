@@ -41,4 +41,10 @@ describe("sanitizeStoredCardData", () => {
       defaultData,
     );
   });
+
+  it("rejects array values that stringify to supported enums", () => {
+    expect(
+      sanitizeStoredCardData({ layout: ["header"], size: ["square"] }),
+    ).toMatchObject({ layout: defaultData.layout, size: defaultData.size });
+  });
 });
