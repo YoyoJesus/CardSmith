@@ -351,6 +351,7 @@
 	<!-- Footer -->
 	<footer class="text-center py-5 text-sm text-gray-400">
 		Made by <a href="https://github.com/YoyoJesus" class="text-blue-500 hover:underline" target="_blank">Austin Sternberg</a>
+		· A ToolSmith product
 	</footer>
 </div>
 
