@@ -1,12 +1,16 @@
 import type { BusinessCardData, CardSize } from "./types";
 
-function esc(str: string): string {
-  return str
+function typstString(str: string): string {
+  return `"${str
     .replace(/\\/g, "\\\\")
     .replace(/"/g, '\\"')
-    .replace(/#/g, "\\#")
-    .replace(/\$/g, "\\$")
-    .replace(/@/g, "\\@");
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n")
+    .replace(/\t/g, "\\t")}"`;
+}
+
+function safeColor(color: string, fallback: string): string {
+  return /^[0-9a-f]{6}$/i.test(color) ? color : fallback;
 }
 
 function cardDimensions(size: CardSize): { width: string; height: string } {
@@ -24,29 +28,31 @@ function cardDimensions(size: CardSize): { width: string; height: string } {
 function contactItems(data: BusinessCardData): string[] {
   const items: string[] = [];
   if (data.email)
-    items.push(`link("mailto:${esc(data.email)}")[${esc(data.email)}]`);
-  if (data.phone) items.push(`"${esc(data.phone)}"`);
+    items.push(
+      `link(${typstString(`mailto:${data.email}`)}, ${typstString(data.email)})`,
+    );
+  if (data.phone) items.push(typstString(data.phone));
   if (data.website) {
-    const url = data.website.startsWith("http")
+    const url = /^https?:\/\//i.test(data.website)
       ? data.website
       : `https://${data.website}`;
     items.push(
-      `link("${esc(url)}")[${esc(data.website.replace(/^https?:\/\//, ""))}]`,
+      `link(${typstString(url)}, ${typstString(data.website.replace(/^https?:\/\//i, ""))})`,
     );
   }
   if (data.linkedin)
     items.push(
-      `link("https://linkedin.com/in/${esc(data.linkedin)}")[linkedin.com/in/${esc(data.linkedin)}]`,
+      `link(${typstString(`https://linkedin.com/in/${data.linkedin}`)}, ${typstString(`linkedin.com/in/${data.linkedin}`)})`,
     );
   if (data.github)
     items.push(
-      `link("https://github.com/${esc(data.github)}")[github.com/${esc(data.github)}]`,
+      `link(${typstString(`https://github.com/${data.github}`)}, ${typstString(`github.com/${data.github}`)})`,
     );
   if (data.twitter)
     items.push(
-      `link("https://x.com/${esc(data.twitter)}")[x.com/${esc(data.twitter)}]`,
+      `link(${typstString(`https://x.com/${data.twitter}`)}, ${typstString(`x.com/${data.twitter}`)})`,
     );
-  if (data.location) items.push(`"${esc(data.location)}"`);
+  if (data.location) items.push(typstString(data.location));
   return items;
 }
 
@@ -54,7 +60,7 @@ function contactBlock(data: BusinessCardData, fontSize = "7pt"): string {
   const items = contactItems(data);
   if (!items.length) return "";
   return items
-    .map((item) => `    #text(${fontSize}, fill: text-color)[#${item}]`)
+    .map((item) => `    #text(${fontSize}, fill: text-color, ${item})`)
     .join("\n    #linebreak()\n");
 }
 
@@ -70,10 +76,10 @@ function layoutBar(
   columns: (0.12in, 1fr),
   rect(fill: primary-color, width: 100%, height: ${dims.height}),
   block(inset: (left: 0.18in, right: 0.2in, top: 0.18in, bottom: 0.18in), width: 100%)[
-    #text(14pt, weight: "bold", fill: primary-color)[${esc(data.name)}]
+    #text(14pt, weight: "bold", fill: primary-color, ${typstString(data.name)})
     #linebreak()
     #v(-0.3em)
-    #text(8pt, fill: primary-color)[${esc(titleLine)}]
+    #text(8pt, fill: primary-color, ${typstString(titleLine)})
     #v(0.12in)
     #line(length: 100%, stroke: 0.4pt + primary-color)
     #v(0.06in)
@@ -92,10 +98,10 @@ function layoutClassic(
   margin: (left: 0.25in, right: 0.25in, top: 0.18in, bottom: 0.18in),
   fill: bg-color)
 
-#text(15pt, weight: "bold", fill: primary-color)[${esc(data.name)}]
+#text(15pt, weight: "bold", fill: primary-color, ${typstString(data.name)})
 #linebreak()
 #v(-0.25em)
-#text(8.5pt, fill: primary-color)[${esc(titleLine)}]
+#text(8.5pt, fill: primary-color, ${typstString(titleLine)})
 #v(0.1in)
 #line(length: 100%, stroke: 0.5pt + primary-color)
 #v(0.06in)
@@ -120,10 +126,10 @@ function layoutCentered(
 #set align(center)
 
 #v(1fr)
-#text(15pt, weight: "bold", fill: primary-color)[${esc(data.name)}]
+#text(15pt, weight: "bold", fill: primary-color, ${typstString(data.name)})
 #linebreak()
 #v(-0.25em)
-#text(8.5pt, fill: primary-color)[${esc(titleLine)}]
+#text(8.5pt, fill: primary-color, ${typstString(titleLine)})
 #v(0.08in)
 #line(length: 80%, stroke: 0.5pt + primary-color)
 #v(0.06in)
@@ -147,10 +153,10 @@ function layoutHeader(
 
 #block(fill: primary-color, width: 100%, height: ${headerHeight},
   inset: (left: 0.2in, right: 0.2in, top: 0.13in, bottom: 0.1in))[
-  #text(15pt, weight: "bold", fill: bg-color)[${esc(data.name)}]
+  #text(15pt, weight: "bold", fill: bg-color, ${typstString(data.name)})
   #linebreak()
   #v(-0.3em)
-  #text(8pt, fill: rgb(230, 230, 255))[${esc(titleLine)}]
+  #text(8pt, fill: rgb(230, 230, 255), ${typstString(titleLine)})
 ]
 #block(width: 100%, inset: (left: 0.2in, right: 0.2in, top: 0.12in, bottom: 0.1in))[
 ${contactBlock(data, "7pt")}
@@ -160,9 +166,9 @@ ${contactBlock(data, "7pt")}
 export function generateTypstCode(data: BusinessCardData): string {
   const dims = cardDimensions(data.size);
 
-  const header = `#let primary-color = rgb("${data.primaryColor}")
-#let text-color = rgb("${data.textColor}")
-#let bg-color = rgb("${data.bgColor}")
+  const header = `#let primary-color = rgb("${safeColor(data.primaryColor, "22327F")}")
+#let text-color = rgb("${safeColor(data.textColor, "1b1b1b")}")
+#let bg-color = rgb("${safeColor(data.bgColor, "ffffff")}")
 
 #set text(size: 8pt, fill: text-color, lang: "en", ligatures: false)`;
 

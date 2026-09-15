@@ -1,30 +1,36 @@
 import { $typst } from "@myriaddreamin/typst.ts";
 
 let initPromise: Promise<void> | null = null;
-let initError: Error | null = null;
 let initialized = false;
+
+async function fetchWasm(path: string): Promise<ArrayBuffer> {
+  const response = await fetch(path);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load ${path}: HTTP ${response.status}${response.statusText ? ` ${response.statusText}` : ""}`,
+    );
+  }
+  return response.arrayBuffer();
+}
 
 export async function initCompiler(): Promise<void> {
   if (initialized) return;
-  if (initError) throw initError;
   if (initPromise) return initPromise;
 
   initPromise = (async () => {
     try {
       $typst.setCompilerInitOptions({
-        getModule: () =>
-          fetch("/typst_ts_web_compiler_bg.wasm").then((r) => r.arrayBuffer()),
+        getModule: () => fetchWasm("/typst_ts_web_compiler_bg.wasm"),
       });
       $typst.setRendererInitOptions({
-        getModule: () =>
-          fetch("/typst_ts_renderer_bg.wasm").then((r) => r.arrayBuffer()),
+        getModule: () => fetchWasm("/typst_ts_renderer_bg.wasm"),
       });
       await $typst.pdf({ mainContent: "" });
+      await $typst.svg({ mainContent: "" });
       initialized = true;
     } catch (err) {
-      initError = err instanceof Error ? err : new Error(String(err));
       initPromise = null;
-      throw initError;
+      throw err instanceof Error ? err : new Error(String(err));
     }
   })();
 
