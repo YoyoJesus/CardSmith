@@ -1,4 +1,4 @@
-// Business Card Template - US Standard (3.5" x 2")
+// CardSmith Template - US Standard (3.5" x 2")
 // This is a reference template; the generator in web/src/lib/typst-generator.ts
 // produces output based on this structure.
 

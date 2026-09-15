@@ -101,11 +101,15 @@
 	];
 </script>
 
+<svelte:head>
+	<title>CardSmith — Business Card Maker</title>
+</svelte:head>
+
 <div class="min-h-screen flex flex-col bg-[#edf0f5] font-sans">
 
 	<!-- Header -->
 	<header class="px-8 pt-7 pb-5 flex items-center justify-between">
-		<h1 class="text-lg font-semibold text-gray-800">Business Card Generator</h1>
+		<h1 class="text-lg font-semibold text-gray-800">CardSmith</h1>
 		<button
 			onclick={() => { cardStore.reset(); scheduleCompile(); }}
 			class="text-sm text-gray-500 hover:text-gray-700 transition-colors"
