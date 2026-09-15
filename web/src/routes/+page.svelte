@@ -112,35 +112,42 @@
 </script>
 
 <svelte:head>
-	<title>CardSmith — Business Card Maker</title>
+	<title>CardSmith | Business Card Maker</title>
 </svelte:head>
 
-<div class="min-h-screen flex flex-col bg-[#edf0f5] font-sans">
+<div class="min-h-screen bg-gray-100 flex flex-col lg:h-screen lg:overflow-hidden">
 
 	<!-- Header -->
-	<header class="px-8 pt-7 pb-5 flex items-center justify-between">
-		<h1 class="text-lg font-semibold text-gray-800">CardSmith</h1>
-		<button
-			onclick={() => { cardStore.reset(); scheduleCompile(); }}
-			class="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-		>
-			Reset
-		</button>
+	<header class="bg-white shadow-sm">
+		<div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-2">
+			<h1 class="text-2xl font-bold text-gray-900">CardSmith</h1>
+			<div class="flex flex-wrap gap-2">
+				<button onclick={() => { cardStore.reset(); scheduleCompile(); }} class="secondary">Reset</button>
+				<button onclick={() => (rightTab = rightTab === 'preview' ? 'typst' : 'preview')} class="secondary">
+					{rightTab === 'preview' ? 'Show code' : 'Show preview'}
+				</button>
+				<button onclick={saveTypst} class="secondary">Save as Typst</button>
+				<button onclick={handleDownload} disabled={isDownloading || !compilerReady} class="primary">
+					{isDownloading ? 'Generating...' : 'Download PDF'}
+				</button>
+			</div>
+		</div>
 	</header>
 
 	<!-- Main two-column layout -->
-	<div class="flex-1 px-8 pb-4 grid grid-cols-2 gap-5">
+	<main class="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 lg:flex-1 lg:min-h-0">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:h-full lg:min-h-0">
 
 		<!-- LEFT PANEL -->
-		<div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+		<div class="bg-white rounded-lg shadow p-6 flex flex-col overflow-hidden max-h-[calc(100vh-10rem)] lg:max-h-none lg:h-full">
 			<!-- Tabs -->
-			<div class="flex border-b border-gray-200 px-1">
+			<div class="flex flex-wrap gap-2 mb-6 border-b pb-4">
 				{#each (['info', 'contact', 'social', 'style'] as const) as tab}
 					<button
 						onclick={() => (leftTab = tab)}
-						class="px-4 py-3.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px {leftTab === tab
-							? 'border-blue-500 text-blue-600'
-							: 'border-transparent text-gray-500 hover:text-gray-700'}"
+						class="px-3 py-1.5 rounded-md text-sm font-medium capitalize transition-colors {leftTab === tab
+							? 'bg-blue-600 text-white'
+							: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
 					>
 						{tab}
 					</button>
@@ -148,7 +155,7 @@
 			</div>
 
 			<!-- Form content -->
-			<div class="flex-1 overflow-y-auto p-6 space-y-5">
+			<div class="flex-1 overflow-y-auto space-y-5 pr-1">
 				{#if leftTab === 'info'}
 					<div>
 						<label for="full-name" class="lbl">Full Name</label>
@@ -259,51 +266,23 @@
 		</div>
 
 		<!-- RIGHT PANEL -->
-		<div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+		<div class="flex h-[calc(100vh-10rem)] flex-col overflow-hidden rounded-lg bg-gray-500 p-4 shadow lg:h-full">
 			<!-- Tab bar + actions -->
-			<div class="flex items-center border-b border-gray-200 px-1">
-				<div class="flex flex-1">
-					{#each (['preview', 'typst'] as const) as tab}
-						<button
-							onclick={() => (rightTab = tab)}
-							class="px-4 py-3.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px {rightTab === tab
-								? 'border-blue-500 text-blue-600'
-								: 'border-transparent text-gray-500 hover:text-gray-700'}"
-						>
-							{tab === 'typst' ? 'Typst' : 'Preview'}
-						</button>
-					{/each}
-				</div>
-				<div class="flex gap-2 pr-3">
-					<button
-						onclick={handleDownload}
-						disabled={isDownloading || !compilerReady}
-						class="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
-					>
-						{#if isDownloading}
-							<span class="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-						{/if}
-						Download PDF
-					</button>
-					<button
-						onclick={saveTypst}
-						class="border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
-					>
-						Save as Typst
-					</button>
+			<div class="flex items-center gap-3 mb-4">
+				<h2 class="flex-1 text-lg font-semibold text-white">
+					{rightTab === 'preview' ? 'Business Card Preview' : 'Typst Code'}
+				</h2>
+				<div class="flex gap-2">
 					{#if rightTab === 'typst'}
-						<button
-							onclick={copyTypst}
-							class="border border-gray-300 hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
-						>
-							{typstCopied ? 'Copied!' : 'Copy Typst'}
+						<button onclick={copyTypst} class="secondary text-xs">
+							{typstCopied ? 'Copied' : 'Copy'}
 						</button>
 					{/if}
 				</div>
 			</div>
 
 			<!-- Panel content -->
-			<div class="flex-1 overflow-auto">
+			<div class="flex-1 min-h-0 overflow-auto rounded-lg bg-gray-100">
 				{#if rightTab === 'preview'}
 					<div class="h-full flex flex-col items-center justify-center p-8">
 						{#if !compilerReady && !compileError}
@@ -318,7 +297,7 @@
 								{#if !compilerReady}
 									<button
 										onclick={initializeCompiler}
-										class="mt-3 bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+										class="danger mt-3 text-sm"
 									>
 										Retry compiler
 									</button>
@@ -342,47 +321,36 @@
 					</div>
 
 				{:else}
-					<pre class="p-5 text-xs text-gray-700 leading-relaxed font-mono whitespace-pre-wrap break-all overflow-auto h-full">{generateTypstCode(data)}</pre>
+					<pre class="p-5 text-xs text-gray-100 bg-gray-900 leading-relaxed font-mono whitespace-pre-wrap break-all overflow-auto h-full">{generateTypstCode(data)}</pre>
 				{/if}
 			</div>
 		</div>
-	</div>
+		</div>
+	</main>
 
 	<!-- Footer -->
-	<footer class="text-center py-5 text-sm text-gray-400">
-		Made by <a href="https://github.com/YoyoJesus" class="text-blue-500 hover:underline" target="_blank">Austin Sternberg</a>
-		· A ToolSmith product
+	<footer class="bg-white border-t border-gray-200 mt-auto">
+		<div
+			class="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[11px] leading-tight text-gray-500"
+		>
+			<p>
+				{new Date().getFullYear()} CardSmith -
+				<a href="https://asternberg.xyz" target="_blank" rel="noopener noreferrer" class="hover:text-gray-700"
+					>Austin Sternberg</a
+				>
+				&middot;
+				<a href="https://typst.app" target="_blank" rel="noopener noreferrer" class="hover:text-gray-700">Typst</a>
+				&middot; A ToolSmith product
+			</p>
+			<p>
+				Missing something?
+				<a
+					href="https://github.com/YoyoJesus/CardSmith"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="font-medium text-blue-600 underline hover:text-blue-800">Contribute on GitHub</a
+				>
+			</p>
+		</div>
 	</footer>
 </div>
-
-<style>
-	:global(.lbl) {
-		display: block;
-		font-size: 0.8125rem;
-		font-weight: 500;
-		color: #374151;
-		margin-bottom: 0.375rem;
-	}
-	:global(.optional) {
-		font-weight: 400;
-		color: #9ca3af;
-	}
-	:global(.inp) {
-		width: 100%;
-		background: white;
-		border: 1px solid #d1d5db;
-		border-radius: 0.375rem;
-		padding: 0.4rem 0.625rem;
-		font-size: 0.875rem;
-		color: #111827;
-		outline: none;
-		transition: border-color 0.15s, box-shadow 0.15s;
-	}
-	:global(.inp:focus) {
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-	:global(.inp::placeholder) {
-		color: #9ca3af;
-	}
-</style>
