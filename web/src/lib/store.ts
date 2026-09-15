@@ -1,5 +1,9 @@
 import { writable } from "svelte/store";
-import { defaultData, type BusinessCardData } from "./types";
+import {
+  defaultData,
+  sanitizeStoredCardData,
+  type BusinessCardData,
+} from "./types";
 
 function createStore() {
   const { subscribe, set, update } =
@@ -9,7 +13,7 @@ function createStore() {
     if (typeof window === "undefined") return { ...defaultData };
     try {
       const saved = sessionStorage.getItem("cardSmithData");
-      if (saved) return { ...defaultData, ...JSON.parse(saved) };
+      if (saved) return sanitizeStoredCardData(JSON.parse(saved));
     } catch {}
     return { ...defaultData };
   }

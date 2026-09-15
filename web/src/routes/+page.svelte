@@ -15,6 +15,7 @@
 	let leftTab = $state<'info' | 'contact' | 'social' | 'style'>('info');
 	let rightTab = $state<'preview' | 'typst'>('preview');
 	let typstCopied = $state(false);
+	let compileRequest = 0;
 
 	let debounceTimer: ReturnType<typeof setTimeout>;
 
@@ -23,32 +24,41 @@
 	});
 
 	onMount(() => {
-		initCompiler()
-			.then(() => {
-				compilerReady = true;
-				scheduleCompile();
-			})
-			.catch((err: Error) => {
-				compileError = `Compiler failed to load: ${err.message}`;
-			});
+		void initializeCompiler();
 		return () => unsubscribe();
 	});
 
-	function scheduleCompile() {
-		clearTimeout(debounceTimer);
-		debounceTimer = setTimeout(doCompile, 350);
+	async function initializeCompiler() {
+		compilerReady = false;
+		compileError = '';
+		try {
+			await initCompiler();
+			compilerReady = true;
+			scheduleCompile();
+		} catch (err) {
+			compileError = `Compiler failed to load: ${err instanceof Error ? err.message : String(err)}`;
+		}
 	}
 
-	async function doCompile() {
+	function scheduleCompile() {
+		clearTimeout(debounceTimer);
+		const request = ++compileRequest;
+		debounceTimer = setTimeout(() => doCompile(request), 350);
+	}
+
+	async function doCompile(request: number) {
 		if (!compilerReady) return;
 		isCompiling = true;
 		compileError = '';
 		try {
-			svgPreview = await compileToSvg(generateTypstCode(data));
+			const preview = await compileToSvg(generateTypstCode(data));
+			if (request === compileRequest) svgPreview = preview;
 		} catch (err) {
-			compileError = err instanceof Error ? err.message : String(err);
+			if (request === compileRequest) {
+				compileError = err instanceof Error ? err.message : String(err);
+			}
 		} finally {
-			isCompiling = false;
+			if (request === compileRequest) isCompiling = false;
 		}
 	}
 
@@ -141,48 +151,48 @@
 			<div class="flex-1 overflow-y-auto p-6 space-y-5">
 				{#if leftTab === 'info'}
 					<div>
-						<label class="lbl">Full Name</label>
-						<input value={data.name} oninput={(e) => updateField('name', e.currentTarget.value)} placeholder="Jane Doe" class="inp" />
+						<label for="full-name" class="lbl">Full Name</label>
+						<input id="full-name" value={data.name} oninput={(e) => updateField('name', e.currentTarget.value)} placeholder="Jane Doe" class="inp" />
 					</div>
 					<div>
-						<label class="lbl">Job Title</label>
-						<input value={data.title} oninput={(e) => updateField('title', e.currentTarget.value)} placeholder="Software Engineer" class="inp" />
+						<label for="job-title" class="lbl">Job Title</label>
+						<input id="job-title" value={data.title} oninput={(e) => updateField('title', e.currentTarget.value)} placeholder="Software Engineer" class="inp" />
 					</div>
 					<div>
-						<label class="lbl">Company <span class="optional">(optional)</span></label>
-						<input value={data.company} oninput={(e) => updateField('company', e.currentTarget.value)} placeholder="Acme Corp" class="inp" />
+						<label for="company" class="lbl">Company <span class="optional">(optional)</span></label>
+						<input id="company" value={data.company} oninput={(e) => updateField('company', e.currentTarget.value)} placeholder="Acme Corp" class="inp" />
 					</div>
 
 				{:else if leftTab === 'contact'}
 					<div>
-						<label class="lbl">Email</label>
-						<input value={data.email} oninput={(e) => updateField('email', e.currentTarget.value)} type="email" placeholder="jane@example.com" class="inp" />
+						<label for="email" class="lbl">Email</label>
+						<input id="email" value={data.email} oninput={(e) => updateField('email', e.currentTarget.value)} type="email" placeholder="jane@example.com" class="inp" />
 					</div>
 					<div>
-						<label class="lbl">Phone <span class="optional">(optional)</span></label>
-						<input value={data.phone} oninput={(e) => updateField('phone', e.currentTarget.value)} placeholder="+1 555 123 4567" class="inp" />
+						<label for="phone" class="lbl">Phone <span class="optional">(optional)</span></label>
+						<input id="phone" value={data.phone} oninput={(e) => updateField('phone', e.currentTarget.value)} placeholder="+1 555 123 4567" class="inp" />
 					</div>
 					<div>
-						<label class="lbl">Website <span class="optional">(optional)</span></label>
-						<input value={data.website} oninput={(e) => updateField('website', e.currentTarget.value)} placeholder="janedoe.com" class="inp" />
+						<label for="website" class="lbl">Website <span class="optional">(optional)</span></label>
+						<input id="website" value={data.website} oninput={(e) => updateField('website', e.currentTarget.value)} placeholder="janedoe.com" class="inp" />
 					</div>
 					<div>
-						<label class="lbl">Location <span class="optional">(optional)</span></label>
-						<input value={data.location} oninput={(e) => updateField('location', e.currentTarget.value)} placeholder="San Francisco, CA" class="inp" />
+						<label for="location" class="lbl">Location <span class="optional">(optional)</span></label>
+						<input id="location" value={data.location} oninput={(e) => updateField('location', e.currentTarget.value)} placeholder="San Francisco, CA" class="inp" />
 					</div>
 
 				{:else if leftTab === 'social'}
 					<div>
-						<label class="lbl">LinkedIn username <span class="optional">(optional)</span></label>
-						<input value={data.linkedin} oninput={(e) => updateField('linkedin', e.currentTarget.value)} placeholder="janedoe" class="inp" />
+						<label for="linkedin" class="lbl">LinkedIn username <span class="optional">(optional)</span></label>
+						<input id="linkedin" value={data.linkedin} oninput={(e) => updateField('linkedin', e.currentTarget.value)} placeholder="janedoe" class="inp" />
 					</div>
 					<div>
-						<label class="lbl">GitHub username <span class="optional">(optional)</span></label>
-						<input value={data.github} oninput={(e) => updateField('github', e.currentTarget.value)} placeholder="janedoe" class="inp" />
+						<label for="github" class="lbl">GitHub username <span class="optional">(optional)</span></label>
+						<input id="github" value={data.github} oninput={(e) => updateField('github', e.currentTarget.value)} placeholder="janedoe" class="inp" />
 					</div>
 					<div>
-						<label class="lbl">Twitter / X username <span class="optional">(optional)</span></label>
-						<input value={data.twitter} oninput={(e) => updateField('twitter', e.currentTarget.value)} placeholder="janedoe" class="inp" />
+						<label for="twitter" class="lbl">Twitter / X username <span class="optional">(optional)</span></label>
+						<input id="twitter" value={data.twitter} oninput={(e) => updateField('twitter', e.currentTarget.value)} placeholder="janedoe" class="inp" />
 					</div>
 
 				{:else if leftTab === 'style'}
@@ -222,14 +232,18 @@
 								['Background', 'bgColor']
 							] as [string, 'primaryColor'|'textColor'|'bgColor'][]) as [label, key]}
 								<div class="flex items-center gap-3">
-									<span class="text-sm text-gray-600 flex-1">{label}</span>
+									<label for={`color-${key}-picker`} class="text-sm text-gray-600 flex-1">{label}</label>
 									<input
+										id={`color-${key}-picker`}
+										aria-label={`${label} color picker`}
 										type="color"
 										value={'#' + data[key]}
 										oninput={(e) => updateField(key, e.currentTarget.value.replace('#', ''))}
 										class="w-8 h-8 rounded-md cursor-pointer border border-gray-300 p-0.5 bg-white"
 									/>
 									<input
+										id={`color-${key}-hex`}
+										aria-label={`${label} hex value`}
 										value={data[key]}
 										oninput={(e) => { const v = e.currentTarget.value.replace('#',''); if (/^[0-9a-fA-F]{6}$/.test(v)) updateField(key, v); }}
 										maxlength={7}
@@ -298,9 +312,17 @@
 								<p class="text-sm text-gray-400">Loading Typst compiler…</p>
 							</div>
 						{:else if compileError}
-							<div class="bg-red-50 border border-red-200 rounded-lg p-4 max-w-sm w-full">
+							<div class="bg-red-50 border border-red-200 rounded-lg p-4 max-w-sm w-full" aria-live="polite">
 								<p class="text-red-600 text-sm font-medium mb-1">Compile error</p>
 								<pre class="text-red-500 text-xs whitespace-pre-wrap break-all">{compileError}</pre>
+								{#if !compilerReady}
+									<button
+										onclick={initializeCompiler}
+										class="mt-3 bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+									>
+										Retry compiler
+									</button>
+								{/if}
 							</div>
 						{:else if isCompiling && !svgPreview}
 							<div class="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
