@@ -5,6 +5,9 @@
 	import { generateTypstCode } from '$lib/typst-generator';
 	import { compileToSvg, compileToPdf, downloadPdf, initCompiler } from '$lib/pdf-compiler';
 	import type { BusinessCardData } from '$lib/types';
+	import { footerStore } from '$lib/footer-store';
+	import AppHeader from '$lib/components/AppHeader.svelte';
+	import AppFooter from '$lib/components/AppFooter.svelte';
 	import InfoForm from '$lib/components/forms/InfoForm.svelte';
 	import ContactForm from '$lib/components/forms/ContactForm.svelte';
 	import SocialForm from '$lib/components/forms/SocialForm.svelte';
@@ -17,7 +20,7 @@
 	let isDownloading = $state(false);
 	let compilerReady = $state(false);
 	let leftTab = $state<'info' | 'contact' | 'social' | 'style'>('info');
-	let rightTab = $state<'preview' | 'typst'>('preview');
+	let showCode = $state(false);
 	let typstCopied = $state(false);
 	let compileRequest = 0;
 
@@ -28,6 +31,7 @@
 	});
 
 	onMount(() => {
+		footerStore.loadFromStorage();
 		void initializeCompiler();
 		return () => unsubscribe();
 	});
@@ -108,22 +112,18 @@
 
 <div class="min-h-screen bg-gray-100 flex flex-col lg:h-screen lg:overflow-hidden">
 
-	<!-- Header -->
-	<header class="bg-white shadow-sm">
-		<div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-2">
-			<h1 class="text-2xl font-bold text-gray-900">CardSmith</h1>
-			<div class="flex flex-wrap gap-2">
-				<button onclick={() => { cardStore.reset(); scheduleCompile(); }} class="secondary">Reset</button>
-				<button onclick={() => (rightTab = rightTab === 'preview' ? 'typst' : 'preview')} class="secondary">
-					{rightTab === 'preview' ? 'Show code' : 'Show preview'}
-				</button>
-				<button onclick={saveTypst} class="secondary">Save as Typst</button>
-				<button onclick={handleDownload} disabled={isDownloading || !compilerReady} class="primary">
-					{isDownloading ? 'Generating...' : 'Download PDF'}
-				</button>
-			</div>
-		</div>
-	</header>
+	<AppHeader
+		bind:showCode
+		{isDownloading}
+		{compilerReady}
+		onDownload={handleDownload}
+		onDownloadTypst={saveTypst}
+		onCopyTypst={copyTypst}
+		onReset={() => {
+			cardStore.reset();
+			scheduleCompile();
+		}}
+	/>
 
 	<!-- Main two-column layout -->
 	<main class="w-full max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 lg:flex-1 lg:min-h-0">
@@ -164,10 +164,10 @@
 			<!-- Tab bar + actions -->
 			<div class="flex items-center gap-3 mb-4">
 				<h2 class="flex-1 text-lg font-semibold text-white">
-					{rightTab === 'preview' ? 'Business Card Preview' : 'Typst Code'}
+					{!showCode ? 'Business Card Preview' : 'Typst Code'}
 				</h2>
 				<div class="flex gap-2">
-					{#if rightTab === 'typst'}
+					{#if showCode}
 						<button onclick={copyTypst} class="secondary text-xs">
 							{typstCopied ? 'Copied' : 'Copy'}
 						</button>
@@ -177,7 +177,7 @@
 
 			<!-- Panel content -->
 			<div class="flex-1 min-h-0 overflow-auto rounded-lg bg-gray-100">
-				{#if rightTab === 'preview'}
+				{#if !showCode}
 					<div class="h-full flex flex-col items-center justify-center p-8">
 						{#if !compilerReady && !compileError}
 							<div class="text-center space-y-3">
@@ -222,29 +222,5 @@
 		</div>
 	</main>
 
-	<!-- Footer -->
-	<footer class="bg-white border-t border-gray-200 mt-auto">
-		<div
-			class="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[11px] leading-tight text-gray-500"
-		>
-			<p>
-				{new Date().getFullYear()} CardSmith -
-				<a href="https://asternberg.xyz" target="_blank" rel="noopener noreferrer" class="hover:text-gray-700"
-					>Austin Sternberg</a
-				>
-				&middot;
-				<a href="https://typst.app" target="_blank" rel="noopener noreferrer" class="hover:text-gray-700">Typst</a>
-				&middot; A ToolSmith product
-			</p>
-			<p>
-				Missing something?
-				<a
-					href="https://github.com/YoyoJesus/CardSmith"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="font-medium text-blue-600 underline hover:text-blue-800">Contribute on GitHub</a
-				>
-			</p>
-		</div>
-	</footer>
+	<AppFooter />
 </div>
