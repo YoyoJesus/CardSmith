@@ -14,6 +14,8 @@ CardSmith is a browser-based business card designer with a live preview and expo
 
 CardSmith is a static SvelteKit application. Card fields are compiled in the browser and stored in that tab's `sessionStorage`; the project has no application server or database.
 
+The only value kept in `localStorage` is whether you hid the footer. It holds no card data.
+
 Session storage is convenient, not a secure vault. Avoid entering secrets. Closing the tab, clearing site data, or using another browser removes access to saved card data.
 
 ## Local development
