@@ -25,13 +25,9 @@
 			class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 text-[11px] leading-snug text-gray-500 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6 lg:px-8 lg:py-2"
 		>
 			<p class="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-				<span class="font-medium text-gray-700">&copy; {new Date().getFullYear()} CardSmith</span>
+				<span class="font-medium text-gray-700">&copy; {new Date().getFullYear()} ToolSmith</span>
 				<span aria-hidden="true" class="text-gray-300">&middot;</span>
 				<span>by {@render external('https://asternberg.xyz', 'Austin Sternberg')}</span>
-				<span aria-hidden="true" class="text-gray-300">&middot;</span>
-				<span>Built with {@render external('https://typst.app', 'Typst')}</span>
-				<span aria-hidden="true" class="text-gray-300">&middot;</span>
-				<span>A ToolSmith product</span>
 			</p>
 			<div class="flex flex-wrap items-center gap-2">
 				<a
