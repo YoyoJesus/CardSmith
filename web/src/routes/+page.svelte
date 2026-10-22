@@ -133,17 +133,19 @@
 		<div class="grid grid-cols-1 gap-6 lg:h-full lg:min-h-0 lg:grid-cols-2">
 			<!-- Form Panel -->
 			<div class="max-h-[calc(100vh-10rem)] overflow-auto rounded-lg bg-white p-6 shadow lg:h-full lg:max-h-none">
-				<TabBar content={contentTabs} appearance={appearanceTabs} bind:activeTab />
+				<TabBar content={contentTabs} appearance={appearanceTabs} panelId="editor-panel" bind:activeTab />
 
-				{#if activeTab === 'info'}
-					<InfoForm {data} update={updateField} />
-				{:else if activeTab === 'contact'}
-					<ContactForm {data} update={updateField} />
-				{:else if activeTab === 'social'}
-					<SocialForm {data} update={updateField} />
-				{:else if activeTab === 'style'}
-					<StyleForm {data} update={updateField} />
-				{/if}
+				<div id="editor-panel" role="tabpanel" aria-labelledby={`editor-tab-${activeTab}`}>
+					{#if activeTab === 'info'}
+						<InfoForm {data} update={updateField} />
+					{:else if activeTab === 'contact'}
+						<ContactForm {data} update={updateField} />
+					{:else if activeTab === 'social'}
+						<SocialForm {data} update={updateField} />
+					{:else if activeTab === 'style'}
+						<StyleForm {data} update={updateField} />
+					{/if}
+				</div>
 			</div>
 
 			<!-- Preview Panel -->
