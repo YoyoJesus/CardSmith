@@ -9,7 +9,6 @@
 		compilerReady,
 		onDownload,
 		onDownloadTypst,
-		onCopyTypst,
 		onReset,
 	}: {
 		showCode: boolean;
@@ -17,7 +16,6 @@
 		compilerReady: boolean;
 		onDownload: () => void;
 		onDownloadTypst: () => void;
-		onCopyTypst: () => void;
 		onReset: () => void;
 	} = $props();
 
@@ -168,7 +166,6 @@
 						<div role="group" aria-labelledby="header-menu-formats">
 							<p id="header-menu-formats" class="menu-heading">Other formats</p>
 							{@render menuItem('Download Typst', 'The Typst source for this card', onDownloadTypst)}
-							{@render menuItem('Copy Typst code', 'Paste the source into another Typst project', onCopyTypst)}
 						</div>
 						<div class="my-1 border-t border-gray-200" role="separator"></div>
 						<div role="group" aria-labelledby="header-menu-view">
