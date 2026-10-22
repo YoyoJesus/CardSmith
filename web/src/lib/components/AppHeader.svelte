@@ -93,7 +93,7 @@
 		type="button"
 		role="menuitem"
 		tabindex="-1"
-		class="menu-item block w-full text-left hover:bg-gray-100 focus:bg-blue-50 focus:outline-none"
+		class="menu-item block w-full text-left hover:bg-gray-100 focus:bg-blue-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600"
 		onclick={() => choose(action)}
 	>
 		<span class="block text-sm font-medium text-gray-900">{label}</span>
@@ -183,7 +183,7 @@
 								type="button"
 								role="menuitem"
 								tabindex="-1"
-								class="menu-item block w-full text-left text-red-700 hover:bg-red-50 focus:bg-red-50 focus:outline-none"
+								class="menu-item block w-full text-left text-red-700 hover:bg-red-50 focus:bg-red-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-red-600"
 								onclick={() => choose(onReset)}
 							>
 								<span class="block text-sm font-medium">Reset card</span>
