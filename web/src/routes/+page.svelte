@@ -4,7 +4,11 @@
 	import { cardStore } from '$lib/store';
 	import { generateTypstCode } from '$lib/typst-generator';
 	import { compileToSvg, compileToPdf, downloadPdf, initCompiler } from '$lib/pdf-compiler';
-	import type { CardLayout, CardSize } from '$lib/types';
+	import type { BusinessCardData } from '$lib/types';
+	import InfoForm from '$lib/components/forms/InfoForm.svelte';
+	import ContactForm from '$lib/components/forms/ContactForm.svelte';
+	import SocialForm from '$lib/components/forms/SocialForm.svelte';
+	import StyleForm from '$lib/components/forms/StyleForm.svelte';
 
 	let data = $state({ ...$cardStore });
 	let svgPreview = $state('');
@@ -62,7 +66,7 @@
 		}
 	}
 
-	function updateField<K extends keyof typeof data>(key: K, value: (typeof data)[K]) {
+	function updateField<K extends keyof BusinessCardData>(key: K, value: BusinessCardData[K]) {
 		cardStore.update((d) => ({ ...d, [key]: value }));
 		scheduleCompile();
 	}
@@ -96,19 +100,6 @@
 		a.click();
 		URL.revokeObjectURL(url);
 	}
-
-	const layouts: { value: CardLayout; label: string; desc: string }[] = [
-		{ value: 'bar', label: 'Accent Bar', desc: 'Vertical color bar on the left' },
-		{ value: 'classic', label: 'Classic', desc: 'Left-aligned with rule divider' },
-		{ value: 'centered', label: 'Centered', desc: 'Everything centered' },
-		{ value: 'header', label: 'Header Block', desc: 'Colored block at top' }
-	];
-
-	const sizes: { value: CardSize; label: string }[] = [
-		{ value: 'us', label: 'US Standard (3.5" × 2")' },
-		{ value: 'eu', label: 'EU Standard (85mm × 55mm)' },
-		{ value: 'square', label: 'Square (2.5" × 2.5")' }
-	];
 </script>
 
 <svelte:head>
@@ -155,112 +146,15 @@
 			</div>
 
 			<!-- Form content -->
-			<div class="flex-1 overflow-y-auto space-y-5 pr-1">
+			<div class="flex-1 overflow-y-auto pr-1">
 				{#if leftTab === 'info'}
-					<div>
-						<label for="full-name" class="lbl">Full Name</label>
-						<input id="full-name" value={data.name} oninput={(e) => updateField('name', e.currentTarget.value)} placeholder="Jane Doe" class="inp" />
-					</div>
-					<div>
-						<label for="job-title" class="lbl">Job Title</label>
-						<input id="job-title" value={data.title} oninput={(e) => updateField('title', e.currentTarget.value)} placeholder="Software Engineer" class="inp" />
-					</div>
-					<div>
-						<label for="company" class="lbl">Company <span class="optional">(optional)</span></label>
-						<input id="company" value={data.company} oninput={(e) => updateField('company', e.currentTarget.value)} placeholder="Acme Corp" class="inp" />
-					</div>
-
+					<InfoForm {data} update={updateField} />
 				{:else if leftTab === 'contact'}
-					<div>
-						<label for="email" class="lbl">Email</label>
-						<input id="email" value={data.email} oninput={(e) => updateField('email', e.currentTarget.value)} type="email" placeholder="jane@example.com" class="inp" />
-					</div>
-					<div>
-						<label for="phone" class="lbl">Phone <span class="optional">(optional)</span></label>
-						<input id="phone" value={data.phone} oninput={(e) => updateField('phone', e.currentTarget.value)} placeholder="+1 555 123 4567" class="inp" />
-					</div>
-					<div>
-						<label for="website" class="lbl">Website <span class="optional">(optional)</span></label>
-						<input id="website" value={data.website} oninput={(e) => updateField('website', e.currentTarget.value)} placeholder="janedoe.com" class="inp" />
-					</div>
-					<div>
-						<label for="location" class="lbl">Location <span class="optional">(optional)</span></label>
-						<input id="location" value={data.location} oninput={(e) => updateField('location', e.currentTarget.value)} placeholder="San Francisco, CA" class="inp" />
-					</div>
-
+					<ContactForm {data} update={updateField} />
 				{:else if leftTab === 'social'}
-					<div>
-						<label for="linkedin" class="lbl">LinkedIn username <span class="optional">(optional)</span></label>
-						<input id="linkedin" value={data.linkedin} oninput={(e) => updateField('linkedin', e.currentTarget.value)} placeholder="janedoe" class="inp" />
-					</div>
-					<div>
-						<label for="github" class="lbl">GitHub username <span class="optional">(optional)</span></label>
-						<input id="github" value={data.github} oninput={(e) => updateField('github', e.currentTarget.value)} placeholder="janedoe" class="inp" />
-					</div>
-					<div>
-						<label for="twitter" class="lbl">Twitter / X username <span class="optional">(optional)</span></label>
-						<input id="twitter" value={data.twitter} oninput={(e) => updateField('twitter', e.currentTarget.value)} placeholder="janedoe" class="inp" />
-					</div>
-
+					<SocialForm {data} update={updateField} />
 				{:else if leftTab === 'style'}
-					<div>
-						<p class="lbl mb-3">Layout</p>
-						<div class="space-y-2">
-							{#each layouts as layout}
-								<label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg border transition-colors {data.layout === layout.value ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}">
-									<input type="radio" name="layout" value={layout.value} checked={data.layout === layout.value} onchange={() => updateField('layout', layout.value)} class="mt-0.5 accent-blue-500" />
-									<div>
-										<div class="text-sm font-medium text-gray-700">{layout.label}</div>
-										<div class="text-xs text-gray-400">{layout.desc}</div>
-									</div>
-								</label>
-							{/each}
-						</div>
-					</div>
-
-					<div>
-						<p class="lbl mb-3">Card Size</p>
-						<div class="space-y-1">
-							{#each sizes as size}
-								<label class="flex items-center gap-2 cursor-pointer py-1.5 text-sm text-gray-600">
-									<input type="radio" name="size" value={size.value} checked={data.size === size.value} onchange={() => updateField('size', size.value)} class="accent-blue-500" />
-									{size.label}
-								</label>
-							{/each}
-						</div>
-					</div>
-
-					<div>
-						<p class="lbl mb-3">Colors</p>
-						<div class="space-y-3">
-							{#each ([
-								['Accent / Primary', 'primaryColor'],
-								['Text', 'textColor'],
-								['Background', 'bgColor']
-							] as [string, 'primaryColor'|'textColor'|'bgColor'][]) as [label, key]}
-								<div class="flex items-center gap-3">
-									<label for={`color-${key}-picker`} class="text-sm text-gray-600 flex-1">{label}</label>
-									<input
-										id={`color-${key}-picker`}
-										aria-label={`${label} color picker`}
-										type="color"
-										value={'#' + data[key]}
-										oninput={(e) => updateField(key, e.currentTarget.value.replace('#', ''))}
-										class="w-8 h-8 rounded-md cursor-pointer border border-gray-300 p-0.5 bg-white"
-									/>
-									<input
-										id={`color-${key}-hex`}
-										aria-label={`${label} hex value`}
-										value={data[key]}
-										oninput={(e) => { const v = e.currentTarget.value.replace('#',''); if (/^[0-9a-fA-F]{6}$/.test(v)) updateField(key, v); }}
-										maxlength={7}
-										class="inp !w-24 font-mono text-xs"
-										placeholder="rrggbb"
-									/>
-								</div>
-							{/each}
-						</div>
-					</div>
+					<StyleForm {data} update={updateField} />
 				{/if}
 			</div>
 		</div>
