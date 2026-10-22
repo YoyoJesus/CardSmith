@@ -17,14 +17,18 @@
 		onRetry: () => void;
 	} = $props();
 
-	let copied = $state(false);
+	let copyStatus = $state<'idle' | 'copied' | 'failed'>('idle');
 	let copiedTimer: ReturnType<typeof setTimeout> | undefined;
 
 	async function copyToClipboard() {
-		await navigator.clipboard.writeText(typstCode);
-		copied = true;
+		try {
+			await navigator.clipboard.writeText(typstCode);
+			copyStatus = 'copied';
+		} catch {
+			copyStatus = 'failed';
+		}
 		clearTimeout(copiedTimer);
-		copiedTimer = setTimeout(() => (copied = false), 1500);
+		copiedTimer = setTimeout(() => (copyStatus = 'idle'), 1500);
 	}
 </script>
 
@@ -37,8 +41,8 @@
 
 	{#if showCode}
 		<div class="relative min-h-0 w-full flex-1">
-			<button class="secondary absolute top-2 right-2 text-xs" onclick={copyToClipboard}
-				>{copied ? 'Copied' : 'Copy'}</button
+			<button class="secondary absolute top-2 right-2 text-xs" onclick={copyToClipboard} aria-live="polite"
+				>{copyStatus === 'copied' ? 'Copied' : copyStatus === 'failed' ? 'Copy failed' : 'Copy'}</button
 			>
 			<pre
 				class="h-full w-full overflow-auto rounded-lg bg-gray-900 p-4 text-xs whitespace-pre-wrap text-gray-100"><code
