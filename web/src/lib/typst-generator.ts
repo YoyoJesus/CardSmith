@@ -25,6 +25,10 @@ function cardDimensions(size: CardSize): { width: string; height: string } {
   }
 }
 
+function titleLine(data: BusinessCardData): string {
+  return [data.title, data.company].filter(Boolean).join(" · ");
+}
+
 function contactItems(data: BusinessCardData): string[] {
   const items: string[] = [];
   if (data.email)
@@ -68,7 +72,6 @@ function layoutBar(
   data: BusinessCardData,
   dims: ReturnType<typeof cardDimensions>,
 ): string {
-  const titleLine = [data.title, data.company].filter(Boolean).join(" · ");
   return `
 #set page(width: ${dims.width}, height: ${dims.height}, margin: 0pt, fill: bg-color)
 
@@ -79,7 +82,7 @@ function layoutBar(
     #text(14pt, weight: "bold", fill: primary-color, ${typstString(data.name)})
     #linebreak()
     #v(-0.3em)
-    #text(8pt, fill: primary-color, ${typstString(titleLine)})
+    #text(8pt, fill: primary-color, ${typstString(titleLine(data))})
     #v(0.12in)
     #line(length: 100%, stroke: 0.4pt + primary-color)
     #v(0.06in)
@@ -92,7 +95,6 @@ function layoutClassic(
   data: BusinessCardData,
   dims: ReturnType<typeof cardDimensions>,
 ): string {
-  const titleLine = [data.title, data.company].filter(Boolean).join(" · ");
   return `
 #set page(width: ${dims.width}, height: ${dims.height},
   margin: (left: 0.25in, right: 0.25in, top: 0.18in, bottom: 0.18in),
@@ -101,7 +103,7 @@ function layoutClassic(
 #text(15pt, weight: "bold", fill: primary-color, ${typstString(data.name)})
 #linebreak()
 #v(-0.25em)
-#text(8.5pt, fill: primary-color, ${typstString(titleLine)})
+#text(8.5pt, fill: primary-color, ${typstString(titleLine(data))})
 #v(0.1in)
 #line(length: 100%, stroke: 0.5pt + primary-color)
 #v(0.06in)
@@ -112,7 +114,6 @@ function layoutCentered(
   data: BusinessCardData,
   dims: ReturnType<typeof cardDimensions>,
 ): string {
-  const titleLine = [data.title, data.company].filter(Boolean).join(" · ");
   const items = contactItems(data);
   const contactJoined = items.length
     ? items
@@ -129,7 +130,7 @@ function layoutCentered(
 #text(15pt, weight: "bold", fill: primary-color, ${typstString(data.name)})
 #linebreak()
 #v(-0.25em)
-#text(8.5pt, fill: primary-color, ${typstString(titleLine)})
+#text(8.5pt, fill: primary-color, ${typstString(titleLine(data))})
 #v(0.08in)
 #line(length: 80%, stroke: 0.5pt + primary-color)
 #v(0.06in)
@@ -141,7 +142,6 @@ function layoutHeader(
   data: BusinessCardData,
   dims: ReturnType<typeof cardDimensions>,
 ): string {
-  const titleLine = [data.title, data.company].filter(Boolean).join(" · ");
   const headerHeight =
     dims.height === "2in"
       ? "0.75in"
@@ -156,7 +156,7 @@ function layoutHeader(
   #text(15pt, weight: "bold", fill: bg-color, ${typstString(data.name)})
   #linebreak()
   #v(-0.3em)
-  #text(8pt, fill: rgb(230, 230, 255), ${typstString(titleLine)})
+  #text(8pt, fill: rgb(230, 230, 255), ${typstString(titleLine(data))})
 ]
 #block(width: 100%, inset: (left: 0.2in, right: 0.2in, top: 0.12in, bottom: 0.1in))[
 ${contactBlock(data, "7pt")}

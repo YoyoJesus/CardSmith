@@ -1,4 +1,5 @@
 import { $typst } from "@myriaddreamin/typst.ts";
+import { downloadBlob } from "./download";
 
 let initPromise: Promise<void> | null = null;
 let initialized = false;
@@ -53,13 +54,8 @@ export function downloadPdf(
   pdfData: Uint8Array,
   filename = "business-card.pdf",
 ): void {
-  const blob = new Blob([pdfData.buffer as ArrayBuffer], {
-    type: "application/pdf",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(
+    new Blob([pdfData.buffer as ArrayBuffer], { type: "application/pdf" }),
+    filename,
+  );
 }
