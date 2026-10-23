@@ -14,6 +14,8 @@ CardSmith is a browser-based business card designer with a live preview and expo
 
 CardSmith is a static SvelteKit application. Card fields are compiled in the browser and stored in that tab's `sessionStorage`; the project has no application server or database.
 
+The Typst compiler downloads its standard fonts from jsDelivr when it starts. Those requests do not include card data.
+
 The only value kept in `localStorage` is whether you hid the footer. It holds no card data.
 
 Session storage is convenient, not a secure vault. Avoid entering secrets. Closing the tab, clearing site data, or using another browser removes access to saved card data.
@@ -49,7 +51,7 @@ Run these from `web/`:
 
 ## Deployment
 
-The production target is Vercel with `web/` configured as the project root. SvelteKit uses the static adapter and writes the deployable site to `web/build/`. Typst compilation runs in the browser through WebAssembly.
+The production target is Vercel with `web/` configured as the project root. SvelteKit uses the static adapter and writes the deployable site to `web/build/`. Typst compilation runs in the browser through WebAssembly. SvelteKit generates the Content Security Policy as a `<meta>` tag from `web/svelte.config.js`. A meta tag cannot set `frame-ancestors`, so framing protection comes from the `Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options` headers in `web/vercel.json`, which also sets the other security headers.
 
 ## Contributing and security
 

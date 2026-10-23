@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { previewSvgBlob } from '$lib/svg-preview';
+
 	let {
 		showCode,
 		typstCode,
@@ -16,6 +18,18 @@
 		compileError: string;
 		onRetry: () => void;
 	} = $props();
+
+	// An <img> never runs scripts or follows links in the compiler's SVG, so it is safe for user-controlled content.
+	let previewUrl = $state('');
+	$effect(() => {
+		if (!svgPreview) {
+			previewUrl = '';
+			return;
+		}
+		const url = URL.createObjectURL(previewSvgBlob(svgPreview));
+		previewUrl = url;
+		return () => URL.revokeObjectURL(url);
+	});
 
 	let copyStatus = $state<'idle' | 'copied' | 'failed'>('idle');
 	let copiedTimer: ReturnType<typeof setTimeout> | undefined;
@@ -64,14 +78,14 @@
 					<div class="h-7 w-7 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
 					<span>Loading Typst compiler...</span>
 				</div>
-			{:else if svgPreview}
+			{:else if previewUrl}
 				<div
-					class="w-full overflow-hidden rounded bg-white shadow-lg transition-opacity [&_svg]:h-auto [&_svg]:w-full duration-200 {isCompiling
+					class="w-full overflow-hidden rounded bg-white shadow-lg transition-opacity duration-200 {isCompiling
 						? 'opacity-60'
 						: ''}"
 					style="max-width: min(560px, 100%);"
 				>
-					{@html svgPreview}
+					<img src={previewUrl} alt="Business card preview" class="block h-auto w-full" />
 				</div>
 			{:else if isCompiling}
 				<span class="text-gray-200">Compiling preview...</span>
