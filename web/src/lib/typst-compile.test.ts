@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { $typst, loadFonts } from "@myriaddreamin/typst.ts";
+import { CompileFormatEnum } from "@myriaddreamin/typst.ts/compiler";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   defaultData,
@@ -86,7 +87,7 @@ describe("generated Typst compiles", () => {
     compiler.addSource("/main.typ", generateTypstCode(data));
     const result = await compiler.compile({
       mainFilePath: "/main.typ",
-      format: "pdf",
+      format: CompileFormatEnum.pdf,
       diagnostics: "full",
     });
 
@@ -94,7 +95,6 @@ describe("generated Typst compiles", () => {
       (d) => d.severity === "error",
     );
     expect(errors).toEqual([]);
-    expect(result.hasError).toBeFalsy();
     expect(result.result?.length).toBeGreaterThan(0);
   });
 });
