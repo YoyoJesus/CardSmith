@@ -5,6 +5,7 @@
 	import { generateTypstCode } from '$lib/typst-generator';
 	import { compileToSvg, compileToPdf, downloadPdf, initCompiler } from '$lib/pdf-compiler';
 	import type { BusinessCardData } from '$lib/types';
+	import { cardFilename, downloadBlob } from '$lib/download';
 	import { footerStore } from '$lib/footer-store';
 	import AppHeader from '$lib/components/AppHeader.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
@@ -15,7 +16,6 @@
 	import SocialForm from '$lib/components/forms/SocialForm.svelte';
 	import StyleForm from '$lib/components/forms/StyleForm.svelte';
 
-	let data = $state({ ...$cardStore });
 	let svgPreview = $state('');
 	let compileError = $state('');
 	let isCompiling = $state(false);
@@ -27,14 +27,11 @@
 
 	let debounceTimer: ReturnType<typeof setTimeout>;
 
-	const unsubscribe = cardStore.subscribe((val) => {
-		data = { ...val };
-	});
+	const typstCode = $derived(generateTypstCode($cardStore));
 
 	onMount(() => {
 		footerStore.loadFromStorage();
 		void initializeCompiler();
-		return () => unsubscribe();
 	});
 
 	async function initializeCompiler() {
@@ -60,7 +57,7 @@
 		isCompiling = true;
 		compileError = '';
 		try {
-			const preview = await compileToSvg(generateTypstCode(data));
+			const preview = await compileToSvg(typstCode);
 			if (request === compileRequest) svgPreview = preview;
 		} catch (err) {
 			if (request === compileRequest) {
@@ -79,9 +76,8 @@
 	async function handleDownload() {
 		isDownloading = true;
 		try {
-			const pdf = await compileToPdf(generateTypstCode(data));
-			const safeName = data.name.replace(/\s+/g, '-').toLowerCase() || 'business-card';
-			downloadPdf(pdf, `${safeName}-card.pdf`);
+			const pdf = await compileToPdf(typstCode);
+			downloadPdf(pdf, cardFilename($cardStore.name, 'pdf'));
 		} catch (err) {
 			compileError = err instanceof Error ? err.message : String(err);
 		} finally {
@@ -90,14 +86,7 @@
 	}
 
 	function saveTypst() {
-		const safeName = data.name.replace(/\s+/g, '-').toLowerCase() || 'business-card';
-		const blob = new Blob([generateTypstCode(data)], { type: 'text/plain' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `${safeName}-card.typ`;
-		a.click();
-		URL.revokeObjectURL(url);
+		downloadBlob(new Blob([typstCode], { type: 'text/plain' }), cardFilename($cardStore.name, 'typ'));
 	}
 
 	const contentTabs = [
@@ -137,13 +126,13 @@
 
 				<div id="editor-panel" role="tabpanel" aria-labelledby={`editor-tab-${activeTab}`}>
 					{#if activeTab === 'info'}
-						<InfoForm {data} update={updateField} />
+						<InfoForm data={$cardStore} update={updateField} />
 					{:else if activeTab === 'contact'}
-						<ContactForm {data} update={updateField} />
+						<ContactForm data={$cardStore} update={updateField} />
 					{:else if activeTab === 'social'}
-						<SocialForm {data} update={updateField} />
+						<SocialForm data={$cardStore} update={updateField} />
 					{:else if activeTab === 'style'}
-						<StyleForm {data} update={updateField} />
+						<StyleForm data={$cardStore} update={updateField} />
 					{/if}
 				</div>
 			</div>
@@ -151,7 +140,7 @@
 			<!-- Preview Panel -->
 			<PreviewPanel
 				{showCode}
-				typstCode={generateTypstCode(data)}
+				{typstCode}
 				{svgPreview}
 				{isCompiling}
 				{compilerReady}
