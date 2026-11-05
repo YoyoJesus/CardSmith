@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { previewSvgBlob } from '$lib/svg-preview';
+	import { previewSvgBlob } from '#lib/svg-preview.ts';
 
 	let {
 		showCode,
