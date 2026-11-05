@@ -51,7 +51,7 @@ Run these from `web/`:
 
 ## Deployment
 
-The production target is Vercel with `web/` configured as the project root. SvelteKit uses the static adapter and writes the deployable site to `web/build/`. Typst compilation runs in the browser through WebAssembly. SvelteKit generates the Content Security Policy as a `<meta>` tag from `web/svelte.config.js`. A meta tag cannot set `frame-ancestors`, so framing protection comes from the `Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options` headers in `web/vercel.json`, which also sets the other security headers.
+The production target is Vercel with `web/` configured as the project root. SvelteKit uses the static adapter and writes the deployable site to `web/build/`. Typst compilation runs in the browser through WebAssembly. SvelteKit generates the Content Security Policy as a `<meta>` tag from the `sveltekit()` plugin options in `web/vite.config.ts`. A meta tag cannot set `frame-ancestors`, so framing protection comes from the `Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options` headers in `web/vercel.json`, which also sets the other security headers.
 
 ## Contributing and security
 

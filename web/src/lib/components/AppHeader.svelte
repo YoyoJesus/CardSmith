@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { nextMenuIndex } from '$lib/menu-navigation';
-	import { footerStore } from '$lib/footer-store';
+	import { nextMenuIndex } from '#lib/menu-navigation.ts';
+	import { footerStore } from '#lib/footer-store.ts';
 
 	let {
 		showCode = $bindable(),

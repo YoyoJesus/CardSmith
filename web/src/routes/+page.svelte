@@ -1,20 +1,20 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
-	import { cardStore } from '$lib/store';
-	import { generateTypstCode } from '$lib/typst-generator';
-	import { compileToSvg, compileToPdf, downloadPdf, initCompiler } from '$lib/pdf-compiler';
-	import type { BusinessCardData } from '$lib/types';
-	import { cardFilename, downloadBlob } from '$lib/download';
-	import { footerStore } from '$lib/footer-store';
-	import AppHeader from '$lib/components/AppHeader.svelte';
-	import AppFooter from '$lib/components/AppFooter.svelte';
-	import TabBar from '$lib/components/TabBar.svelte';
-	import PreviewPanel from '$lib/components/PreviewPanel.svelte';
-	import InfoForm from '$lib/components/forms/InfoForm.svelte';
-	import ContactForm from '$lib/components/forms/ContactForm.svelte';
-	import SocialForm from '$lib/components/forms/SocialForm.svelte';
-	import StyleForm from '$lib/components/forms/StyleForm.svelte';
+	import { cardStore } from '#lib/store.ts';
+	import { generateTypstCode } from '#lib/typst-generator.ts';
+	import { compileToSvg, compileToPdf, downloadPdf, initCompiler } from '#lib/pdf-compiler.ts';
+	import type { BusinessCardData } from '#lib/types.ts';
+	import { cardFilename, downloadBlob } from '#lib/download.ts';
+	import { footerStore } from '#lib/footer-store.ts';
+	import AppHeader from '#lib/components/AppHeader.svelte';
+	import AppFooter from '#lib/components/AppFooter.svelte';
+	import TabBar from '#lib/components/TabBar.svelte';
+	import PreviewPanel from '#lib/components/PreviewPanel.svelte';
+	import InfoForm from '#lib/components/forms/InfoForm.svelte';
+	import ContactForm from '#lib/components/forms/ContactForm.svelte';
+	import SocialForm from '#lib/components/forms/SocialForm.svelte';
+	import StyleForm from '#lib/components/forms/StyleForm.svelte';
 
 	let svgPreview = $state('');
 	let compileError = $state('');

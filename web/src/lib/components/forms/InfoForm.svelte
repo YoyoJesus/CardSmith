@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { BusinessCardData } from '$lib/types';
+	import type { BusinessCardData } from '#lib/types.ts';
 
 	let {
 		data,

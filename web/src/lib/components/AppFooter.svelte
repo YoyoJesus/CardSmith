@@ -3,7 +3,7 @@
 	brings it back, so hiding moves focus to that menu button.
 -->
 <script lang="ts">
-	import { footerStore } from '$lib/footer-store';
+	import { footerStore } from '#lib/footer-store.ts';
 
 	function hide() {
 		footerStore.toggle();

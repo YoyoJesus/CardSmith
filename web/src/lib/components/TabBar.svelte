@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { nextMenuIndex } from '$lib/menu-navigation';
+	import { nextMenuIndex } from '#lib/menu-navigation.ts';
 
 	export type EditorTab = { id: string; label: string };
 
